@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Plot Thickens 🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --deep-rose: #C4405A;
+    --blush: #E8A0A0;
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --cream: #FAF0E6;
+    --dark: #1A0A0A;
+    --card-bg: #2A0F0F;
+    --card-border: #5A2020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--dark);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(139,26,26,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(196,64,90,0.15) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.1;
+    color: var(--cream);
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--deep-rose); }
+
+  .subtitle {
+    font-size: 17px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--blush);
+    opacity: 0.8;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0;
+    opacity: 0.5;
+  }
+  .ornament::before, .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .ornament span { color: var(--gold); font-size: 14px; }
+
+  /* ── FILTERS PANEL ── */
+  .filters-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 10px 24px;
+    margin: 0 auto 20px;
+    display: flex;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .filters-toggle:hover { border-color: var(--gold); color: var(--gold-light); }
+  .filters-toggle .arrow { transition: transform 0.3s; display: inline-block; }
+  .filters-toggle.open .arrow { transform: rotate(180deg); }
+
+  .filters-panel {
+    background: rgba(26,8,8,0.95);
+    border: 1px solid var(--card-border);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: fadeUp 0.3s ease both;
+  }
+  .filters-panel.open { display: block; }
+
+  .filter-group { margin-bottom: 22px; }
+  .filter-group:last-child { margin-bottom: 0; }
+
+  .filter-label {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid rgba(90,32,32,0.6);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: rgba(250,240,230,0.65);
+    background: transparent;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.18s;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--blush); color: var(--blush); }
+  .chip.excluded {
+    border-color: rgba(196,64,90,0.7);
+    color: var(--deep-rose);
+    background: rgba(196,64,90,0.1);
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  .chip.excluded::after { content: ' ✕'; font-size: 11px; }
+
+  .filters-note {
+    font-size: 13px;
+    font-style: italic;
+    color: rgba(250,240,230,0.35);
+    margin-top: 18px;
+    text-align: center;
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    justify-content: flex-end;
+  }
+  .btn-small {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: rgba(201,168,76,0.7);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 7px 16px;
+    transition: all 0.18s;
+  }
+  .btn-small:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── MAIN BUTTON ── */
+  .btn-randomise {
+    display: block;
+    margin: 0 auto 40px;
+    padding: 18px 52px;
+    background: linear-gradient(135deg, var(--crimson), var(--deep-rose));
+    border: 1px solid var(--gold);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeUp 0.8s 0.3s ease both;
+    box-shadow: 0 8px 32px rgba(196,64,90,0.3);
+  }
+  .btn-randomise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-randomise:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(196,64,90,0.45); }
+  .btn-randomise:hover::before { opacity: 1; }
+  .btn-randomise:active { transform: translateY(0); }
+  .btn-randomise:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ── LOADING STATE ── */
+  .loading-dots {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .loading-dots span {
+    width: 5px; height: 5px;
+    background: var(--cream);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── RESULT CARD ── */
+  .result-card {
+    background: linear-gradient(145deg, var(--card-bg), #1A0808);
+    border: 1px solid var(--card-border);
+    border-radius: 2px;
+    padding: 40px;
+    position: relative;
+    display: none;
+    box-shadow:
+      0 0 0 1px rgba(201,168,76,0.15),
+      0 20px 60px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .result-card.visible {
+    display: block;
+    animation: revealCard 0.6s ease both;
+  }
+  .result-card::before, .result-card::after, .corner-br, .corner-tl {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.5;
+  }
+  .result-card::before { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+  .result-card::after  { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+  .corner-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+  .corner-tl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+
+  .tag {
+    padding: 5px 14px;
+    border: 1px solid;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 300;
+    border-radius: 1px;
+  }
+  .tag-setting  { border-color: rgba(201,168,76,0.4);  color: var(--gold-light); }
+  .tag-trope    { border-color: rgba(196,64,90,0.5);   color: var(--blush); }
+  .tag-char     { border-color: rgba(232,160,160,0.3); color: var(--blush); opacity: 0.8; }
+  .tag-conflict { border-color: rgba(139,26,26,0.6);   color: #E88080; }
+  .tag-heat     { border-color: rgba(201,168,76,0.3);  color: var(--gold); }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .blurb-section { margin-bottom: 28px; }
+  .blurb {
+    font-size: 20px;
+    font-style: italic;
+    line-height: 1.65;
+    color: var(--cream);
+    font-weight: 300;
+  }
+
+  .summary-section { margin-bottom: 28px; }
+  .summary {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(250,240,230,0.8);
+    font-weight: 300;
+  }
+
+  .breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .breakdown-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(90,32,32,0.4);
+    padding: 14px 18px;
+    border-radius: 1px;
+  }
+  .breakdown-item .label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.6;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .breakdown-item .value {
+    font-size: 15px;
+    font-style: italic;
+    color: var(--cream);
+    font-weight: 300;
+  }
+
+  /* ── ERROR ── */
+  .error-msg {
+    text-align: center;
+    padding: 20px;
+    color: var(--blush);
+    font-style: italic;
+    font-size: 15px;
+    opacity: 0.8;
+  }
+
+  /* ── HISTORY COUNTER ── */
+  .history-badge {
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.4);
+    margin-bottom: 20px;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes revealCard {
+    from { opacity: 0; transform: translateY(16px) scale(0.99); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 520px) {
+    .breakdown { grid-template-columns: 1fr; }
+    .result-card { padding: 28px 22px; }
+    .filters-panel { padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="eyebrow">✦ A Story Generator ✦</span>
+    <h1>The Plot <span>Thickens</span></h1>
+    <p class="subtitle">Steamy romance plots, conjured on demand</p>
+    <div class="ornament"><span>❧</span></div>
+  </header>
+
+  <!-- FILTERS -->
+  <button class="filters-toggle" id="filtersToggle" onclick="toggleFilters()">
+    ✦ Customise Your Story <span class="arrow">▾</span>
+  </button>
+
+  <div class="filters-panel" id="filtersPanel">
+    <div class="filter-group">
+      <span class="filter-label">Setting — tap to exclude</span>
+      <div class="filter-chips" id="chips-setting"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Trope — tap to exclude</span>
+      <div class="filter-chips" id="chips-trope"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Character Types — tap to exclude</span>
+      <div class="filter-chips" id="chips-char"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Conflict — tap to exclude</span>
+      <div class="filter-chips" id="chips-conflict"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Heat Level — tap to exclude</span>
+      <div class="filter-chips" id="chips-heat"></div>
+    </div>
+    <p class="filters-note">Excluded items (struck through) will not appear in generated plots.</p>
+    <div class="filter-actions">
+      <button class="btn-small" onclick="clearFilters()">Clear All</button>
+      <button class="btn-small" onclick="toggleFilters()">Done</button>
+    </div>
+  </div>
+
+  <div class="history-badge" id="historyBadge" style="display:none"></div>
+
+  <button class="btn-randomise" id="mainBtn" onclick="generate()">🔥 Spin the story</button>
+
+  <div class="result-card" id="result">
+    <div class="corner-br"></div>
+    <div class="corner-tl"></div>
+    <div class="tags" id="tags"></div>
+    <div class="blurb-section">
+      <span class="section-label">✦ The Hook</span>
+      <p class="blurb" id="blurb"></p>
+    </div>
+    <div class="ornament"><span>❧</span></div>
+    <div class="summary-section">
+      <span class="section-label">✦ Full Summary</span>
+      <p class="summary" id="summary"></p>
+    </div>
+    <div>
+      <span class="section-label">✦ At a Glance</span>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── FILTER OPTIONS ──────────────────────────────────────────────────────────
+const FILTER_OPTIONS = {
+  setting: [
+    "Contemporary Big City", "Small Town", "Fantasy Realm",
+    "Paranormal World", "Historical / Regency", "Small Island / Tropical",
+    "Sci-Fi / Space", "Royalty / Court"
+  ],
+  trope: [
+    "Enemies to Lovers", "Fake Dating", "Forced Proximity",
+    "Second Chance", "Forbidden Love", "Grumpy / Sunshine",
+    "Boss / Employee", "Strangers to Lovers", "Friends to Lovers",
+    "Arranged Marriage", "Bodyguard Romance", "Reverse Harem"
+  ],
+  char: [
+    "Human", "Fae", "Vampire", "Werewolf / Shifter", "Dragon",
+    "Witch / Mage", "Royalty", "Billionaire", "Single Parent",
+    "Rivals / Coworkers", "Celebrity", "Demon / Angel"
+  ],
+  conflict: [
+    "Enemies to Allies", "Secret Identity", "Forbidden by Society / Magic",
+    "Marriage of Convenience", "Revenge Plot", "Family Feud",
+    "One Bed", "Race Against Time", "Jealousy / Possessiveness",
+    "Mistaken Identity", "Forced Proximity / Trapped", "Class Divide"
+  ],
+  heat: [
+    "Slow Burn", "Medium Heat", "Scorching", "Wildfire", "Incandescent"
+  ]
+};
+
+const excluded = { setting: new Set(), trope: new Set(), char: new Set(), conflict: new Set(), heat: new Set() };
+let generatedCount = 0;
+const recentSummaries = []; // track recent summaries to avoid repeats
+
+// ── BUILD FILTER CHIPS ──────────────────────────────────────────────────────
+Object.entries(FILTER_OPTIONS).forEach(([key, values]) => {
+  const container = document.getElementById(`chips-${key}`);
+  values.forEach(val => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = val;
+    btn.dataset.key = key;
+    btn.dataset.val = val;
+    btn.onclick = () => toggleChip(btn, key, val);
+    container.appendChild(btn);
+  });
+});
+
+function toggleChip(btn, key, val) {
+  if (excluded[key].has(val)) {
+    excluded[key].delete(val);
+    btn.classList.remove('excluded');
+  } else {
+    excluded[key].add(val);
+    btn.classList.add('excluded');
+  }
+}
+
+function toggleFilters() {
+  const panel = document.getElementById('filtersPanel');
+  const toggle = document.getElementById('filtersToggle');
+  panel.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function clearFilters() {
+  Object.values(excluded).forEach(s => s.clear());
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('excluded'));
+}
+
+// ── BUILD PROMPT ─────────────────────────────────────────────────────────────
+function buildPrompt() {
+  const allowedSettings  = FILTER_OPTIONS.setting.filter(v  => !excluded.setting.has(v));
+  const allowedTropes    = FILTER_OPTIONS.trope.filter(v    => !excluded.trope.has(v));
+  const allowedChars     = FILTER_OPTIONS.char.filter(v     => !excluded.char.has(v));
+  const allowedConflicts = FILTER_OPTIONS.conflict.filter(v => !excluded.conflict.has(v));
+  const allowedHeats     = FILTER_OPTIONS.heat.filter(v     => !excluded.heat.has(v));
+
+  const recentNote = recentSummaries.length > 0
+    ? `\n\nIMPORTANT — Do NOT recycle these recent premises or names:\n${recentSummaries.slice(-4).map((s,i) => `${i+1}. ${s}`).join('\n')}`
+    : '';
+
+  return `You are a creative romance novelist generating a UNIQUE, ORIGINAL plot. Every generation must feel fresh — vary the profession, name, nationality, location, and conflict angle significantly.
+
+ALLOWED settings (pick ONE): ${allowedSettings.join(', ')}
+ALLOWED tropes (pick ONE): ${allowedTropes.join(', ')}
+ALLOWED character types (pick TWO different ones): ${allowedChars.join(', ')}
+ALLOWED conflicts (pick ONE): ${allowedConflicts.join(', ')}
+ALLOWED heat levels (pick ONE): ${allowedHeats.join(', ')}${recentNote}
+
+Generate a complete romance plot in EXACTLY this JSON format (no markdown, no backticks, just raw JSON):
+{
+  "setting": "...",
+  "trope": "...",
+  "char1": "...",
+  "char2": "...",
+  "conflict": "...",
+  "heroine": "Full name — one-line character description",
+  "hero": "Full name — one-line character description",
+  "heat": "...",
+  "blurb": "2-3 sentence punchy hook (italic-worthy, emotionally charged)",
+  "summary": "4-6 sentence plot summary that reveals setup, tension, intimate escalation, and the central choice or dilemma"
+}
+
+Rules:
+- Be SPECIFIC and ORIGINAL with names (avoid overused names like Elena, Damien, Marcus, Scarlett)
+- Give characters interesting professions and backstories
+- The blurb should be evocative and witty
+- The summary should tease explicit tension without being explicit itself
+- Each plot must feel genuinely distinct in tone and setting`;
+}
+
+// ── GENERATE ─────────────────────────────────────────────────────────────────
+async function generate() {
+  const btn = document.getElementById('mainBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loading-dots"><span></span><span></span><span></span></span>`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: buildPrompt() }]
+      })
+    });
+
+    const data = await response.json();
+    const rawText = data.content.map(i => i.text || "").join("").trim();
+
+    // Strip markdown fences if present
+    const cleaned = rawText.replace(/```json|```/gi, "").trim();
+    const p = JSON.parse(cleaned);
+
+    // Track to avoid repeats
+    const shortSummary = `${p.trope}|${p.setting}|${p.heroine?.split('—')[0]?.trim()}`;
+    recentSummaries.push(shortSummary);
+    if (recentSummaries.length > 10) recentSummaries.shift();
+
+    generatedCount++;
+    renderPlot(p);
+
+  } catch (err) {
+    console.error(err);
+    const card = document.getElementById('result');
+    card.classList.add('visible');
+    card.innerHTML = `
+      <div class="corner-br"></div><div class="corner-tl"></div>
+      <div class="error-msg">
+        Something went awry in the story forge...<br>
+        <small style="opacity:0.5">${err.message}</small><br><br>
+        <em>Please try again — the muses are temperamental.</em>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔥 Spin the story';
+    updateBadge();
+  }
+}
+
+function renderPlot(p) {
+  document.getElementById('tags').innerHTML = [
+    `<span class="tag tag-setting">${p.setting}</span>`,
+    `<span class="tag tag-trope">${p.trope}</span>`,
+    `<span class="tag tag-char">${p.char1}</span>`,
+    `<span class="tag tag-char">${p.char2}</span>`,
+    `<span class="tag tag-conflict">${p.conflict}</span>`,
+    `<span class="tag tag-heat">🔥 ${p.heat}</span>`,
+  ].join('');
+
+  document.getElementById('blurb').textContent = p.blurb;
+  document.getElementById('summary').textContent = p.summary;
+
+  document.getElementById('breakdown').innerHTML = [
+    { label: 'Setting',       value: p.setting },
+    { label: 'Trope',         value: p.trope },
+    { label: 'Protagonist',   value: p.heroine },
+    { label: 'Love Interest', value: p.hero },
+    { label: 'Conflict',      value: p.conflict },
+    { label: '🔥 Heat Level', value: p.heat },
+  ].map(i => `
+    <div class="breakdown-item">
+      <span class="label">${i.label}</span>
+      <span class="value">${i.value}</span>
+    </div>
+  `).join('');
+
+  const card = document.getElementById('result');
+  // Re-inject corner decorations after innerHTML override in error case
+  if (!card.querySelector('.corner-br')) {
+    card.innerHTML = `<div class="corner-br"></div><div class="corner-tl"></div>` + card.innerHTML;
+  }
+  card.classList.remove('visible');
+  void card.offsetWidth;
+  card.classList.add('visible');
+}
+
+function updateBadge() {
+  const badge = document.getElementById('historyBadge');
+  if (generatedCount > 0) {
+    badge.style.display = 'block';
+    badge.textContent = `✦ ${generatedCount} plot${generatedCount === 1 ? '' : 's'} generated this session`;
+  }
+}
+</script>
+</body>
+</html>
